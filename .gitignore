@@ -1,3 +1,34 @@
+# ==========================
+# TG-FEA Generated Data
+# ==========================
+
+
+# Processed Data
+data/processed/
+
+# Federated Client Data
+data/federated/
+
+# Training Outputs
+checkpoints/
+models/saved_models/
+
+# Experiment Results (keep reports if you want)
+results/*.csv
+results/*.json
+results/*.txt
+
+# TensorFlow / PyTorch Models
+*.h5
+*.keras
+*.pt
+*.pth
+
+# Logs
+logs/
+*.log
+
+
 # Processed datasets
 data/processed/processed_dataset.csv
 data/processed/processed_dataset.pkl
