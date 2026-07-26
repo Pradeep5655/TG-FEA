@@ -149,17 +149,23 @@ def save_label_mapping(label_mapping):
 
 def save_processed_dataset(df):
     """
-    Save the merged processed dataset.
+    Save the merged processed dataset
+    in both CSV and Pickle formats.
     """
 
-    output_file = PROCESSED_DIR / "processed_dataset.csv"
+    csv_file = PROCESSED_DIR / "processed_dataset.csv"
+    pkl_file = PROCESSED_DIR / "processed_dataset.pkl"
 
-    df.to_csv(
-        output_file,
-        index=False
-    )
+    print("\nSaving CSV...")
+    df.to_csv(csv_file, index=False)
 
-    print(f"\nProcessed dataset saved to:\n{output_file}")
+    print("Saving Pickle...")
+    df.to_pickle(pkl_file)
+
+    print("\nProcessed dataset saved successfully.")
+
+    print(f"CSV : {csv_file}")
+    print(f"PKL : {pkl_file}")
     
 def generate_preprocessing_report(df, label_mapping):
     """
