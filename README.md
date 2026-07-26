@@ -143,7 +143,7 @@ Current Progress: **~45% Complete**
 Clone the repository:
 
 ```bash
-git clone <repository_url>
+git clone https://github.com/Pradeep5655/TG-FEA.git
 cd TG-FEA
 ```
 
