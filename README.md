@@ -50,7 +50,7 @@ TG-FEA/
 
 - [x] Dataset Discovery
 - [x] CSV Inspection
-- [ ] Dataset Report Generation
+- [x] Dataset Report Generation
 - [ ] Data Normalization
 - [ ] Client Split
 - [ ] CNN Feature Extractor

@@ -11,21 +11,36 @@ Description:
 
 Author:
     TG-FEA Research Team
-
 =========================================================
 """
+
+import json
+import sys
+from pathlib import Path
+
 import pandas as pd
 from tqdm import tqdm
-from pathlib import Path
-import sys
 
+# --------------------------------------------------------
+# Project Root
+# --------------------------------------------------------
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from config import RAW_DATA_PATH
 
+# --------------------------------------------------------
+# Results Directory
+# --------------------------------------------------------
+RESULTS_DIR = PROJECT_ROOT / "results"
+RESULTS_DIR.mkdir(exist_ok=True)
 
+
+# --------------------------------------------------------
+# Display Functions
+# --------------------------------------------------------
 def print_header():
     """Print project header."""
 
@@ -36,10 +51,11 @@ def print_header():
     print("=" * 60)
 
 
+# --------------------------------------------------------
+# Dataset Discovery
+# --------------------------------------------------------
 def get_device_folders(dataset_path: Path):
-    """
-    Returns all IoT device folders.
-    """
+    """Return all IoT device folders."""
 
     devices = [
         folder
@@ -49,24 +65,23 @@ def get_device_folders(dataset_path: Path):
 
     return sorted(devices)
 
+
 def get_csv_files(device_folder: Path):
-    """
-    Recursively finds all CSV files inside a device folder.
-    """
+    """Recursively return all CSV files."""
 
-    csv_files = sorted(device_folder.rglob("*.csv"))
+    return sorted(device_folder.rglob("*.csv"))
 
-    return csv_files
-  
+
+# --------------------------------------------------------
+# CSV Analysis
+# --------------------------------------------------------
 def analyze_csv(csv_path: Path):
-    """
-    Analyze a single CSV file.
-    """
+    """Analyze a single CSV file."""
 
     try:
         df = pd.read_csv(csv_path)
 
-        # Determine device and category
+        # Detect device and attack category
         if csv_path.parent.name in ["gafgyt_attacks", "mirai_attacks"]:
             device = csv_path.parent.parent.name
             category = csv_path.parent.name
@@ -82,14 +97,85 @@ def analyze_csv(csv_path: Path):
             "columns": len(df.columns),
             "missing": int(df.isnull().sum().sum()),
             "duplicates": int(df.duplicated().sum()),
-            "memory_mb": round(df.memory_usage(deep=True).sum() / (1024**2), 2),
+            "memory_mb": round(
+                df.memory_usage(deep=True).sum() / (1024 ** 2),
+                2
+            ),
         }
 
     except Exception as e:
-        print(f"Error reading {csv_path}")
+        print(f"Error reading: {csv_path}")
         print(e)
         return None
-      
+
+
+# --------------------------------------------------------
+# Statistics
+# --------------------------------------------------------
+def generate_statistics(summary: pd.DataFrame):
+    """Generate overall dataset statistics."""
+
+    stats = {
+        "total_devices": int(summary["device"].nunique()),
+        "total_csv_files": int(len(summary)),
+        "total_rows": int(summary["rows"].sum()),
+        "total_columns": int(summary["columns"].max()),
+        "missing_values": int(summary["missing"].sum()),
+        "duplicate_rows": int(summary["duplicates"].sum()),
+        "total_memory_mb": round(summary["memory_mb"].sum(), 2),
+    }
+
+    return stats
+
+
+# --------------------------------------------------------
+# Save Reports
+# --------------------------------------------------------
+def save_summary(summary: pd.DataFrame):
+    """Save CSV summary."""
+
+    summary.to_csv(
+        RESULTS_DIR / "dataset_summary.csv",
+        index=False
+    )
+
+
+def save_statistics(stats):
+    """Save statistics JSON."""
+
+    with open(
+        RESULTS_DIR / "dataset_statistics.json",
+        "w",
+        encoding="utf-8"
+    ) as f:
+
+        json.dump(
+            stats,
+            f,
+            indent=4
+        )
+
+
+def save_text_report(stats):
+    """Save text report."""
+
+    with open(
+        RESULTS_DIR / "dataset_report.txt",
+        "w",
+        encoding="utf-8"
+    ) as f:
+
+        f.write("=" * 60 + "\n")
+        f.write("TG-FEA DATASET REPORT\n")
+        f.write("=" * 60 + "\n\n")
+
+        for key, value in stats.items():
+            f.write(f"{key}: {value}\n")
+
+
+# --------------------------------------------------------
+# Main
+# --------------------------------------------------------
 def main():
 
     print_header()
@@ -106,21 +192,41 @@ def main():
 
         print(f"{device.name} ({len(csv_files)} CSV files)")
 
-        for csv in tqdm(csv_files, leave=False):
+        for csv_file in tqdm(csv_files, leave=False):
 
-            result = analyze_csv(csv)
+            result = analyze_csv(csv_file)
 
             if result is not None:
                 all_stats.append(result)
 
+    # Create DataFrame
     summary = pd.DataFrame(all_stats)
 
-    print("\n")
+    # Save reports
+    save_summary(summary)
+
+    stats = generate_statistics(summary)
+
+    save_statistics(stats)
+
+    save_text_report(stats)
+
+    # Display preview
+    print("\nFirst Five Records\n")
     print(summary.head())
 
-    print("\n========================================")
-    print(f"CSV Files Analysed : {len(summary)}")
-    print("========================================")
+    print("\nDataset Statistics\n")
 
+    for key, value in stats.items():
+        print(f"{key:<20}: {value}")
+
+    print("\nReports saved to:")
+
+    print(RESULTS_DIR.resolve())
+
+
+# --------------------------------------------------------
+# Entry Point
+# --------------------------------------------------------
 if __name__ == "__main__":
     main()
