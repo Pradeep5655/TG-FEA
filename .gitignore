@@ -1,3 +1,10 @@
+# Processed datasets
+data/processed/processed_dataset.csv
+data/processed/processed_dataset.pkl
+
+# Large datasets
+data/N_BaIoT/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
