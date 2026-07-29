@@ -112,11 +112,11 @@ TG-FEA/
 - [x] Data Preprocessing
 - [x] Data Normalization
 - [x] Client Split
-- [ ] CNN Feature Extractor
-- [ ] BiLSTM Model
-- [ ] GRU Model
-- [ ] Attention Layer
-- [ ] Hybrid Model
+- [x] CNN Feature Extractor
+- [x] BiLSTM Model
+- [x] GRU Model
+- [x] Attention Layer
+- [x] Hybrid Model
 - [ ] Federated Learning
 - [ ] Byzantine Attack Simulation
 - [ ] Trust-Gated Aggregation
